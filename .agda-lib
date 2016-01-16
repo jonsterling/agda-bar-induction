@@ -1,0 +1,4 @@
+name: bar-induction
+include:
+  .
+  ./modules/agda-prelude/src
