@@ -1,4 +1,4 @@
-module bi where
+module bi (A : Set) where
 
 open import Agda.Primitive
 open import Prelude.Natural
@@ -8,114 +8,99 @@ open import Prelude.Monoidal.Coproduct
 open import Prelude.Decidable
 open import Prelude.Path
 
-module space (A : Set) where
-  record point : Set where
-    coinductive
-    constructor _∷_
-    field
-      hd : A
-      tl : point
+-- a choice sequence, or point in the universal spread
+record point : Set where
+  coinductive
+  constructor _∷_
+  field
+    hd : A
+    tl : point
 
-  data neigh : Set where
-    ⟨⟩ : neigh
-    _⌢_ : neigh → A → neigh
+-- a finite approximation of a choice sequence (a neighborhood / open set)
+data neigh : Set where
+  ⟨⟩ : neigh
+  _∷_ : A → neigh → neigh
 
-  _∶_ : A → neigh → neigh
-  x ∶ ⟨⟩ = ⟨⟩ ⌢ x
-  x ∶ (U ⌢ y) = (x ∶ U) ⌢ y
+_⌢_ : neigh → A → neigh
+⟨⟩ ⌢ x = x ∷ ⟨⟩
+(x ∷ U) ⌢ y = x ∷ (U ⌢ y)
 
-{-
-  _++_ : neigh → neigh → neigh
-  U ++ ⟨⟩ = U
-  U ++ (V ⌢ x) = (U ++ V) ⌢ x
-  -}
+_++_ : neigh → neigh → neigh
+⟨⟩ ++ V = V
+(x ∷ U) ++ V = x ∷ (U ++ V)
 
-  _++_ : neigh → neigh → neigh
-  ⟨⟩ ++ V = V
-  (U ⌢ x) ++ V = U ++ (x ∶ V)
+-- From a point, make an observation of a particular precision
+_[_] : point → Nat → neigh
+α [ ze ] = ⟨⟩
+α [ su n ] = point.hd α ∷ ((point.tl α) [ n ])
 
-  ++-⌢-id : ∀ {U V} {x} → U ++ (V ⌢ x) ≡ (U ++ V) ⌢ x
-  ++-⌢-id {⟨⟩} {V} = λ {x} → refl
-  ++-⌢-id {U ⌢ x} {V} = ++-⌢-id {U} {x ∶ V}
+-- A point lies in an open set when the latter is a prefix of the former
+data _∈_ : point → neigh → Set where
+  [] : ∀ {α} → α ∈ ⟨⟩
+  step : ∀ {α : point} {U} → point.tl α ∈ U → α ∈ (point.hd α ∷ U)
 
-  ++-⟨⟩-id : {U : neigh} → U ++ ⟨⟩ ≡ U
-  ++-⟨⟩-id {⟨⟩} = refl
-  ++-⟨⟩-id {U ⌢ x} rewrite ++-⌢-id {U} {⟨⟩} {x} | ++-⟨⟩-id {U} = refl
+species : Set (lsuc lzero)
+species = neigh → Set
 
-  _‼_ : point → Nat → A
-  α ‼ ze = point.hd α
-  α ‼ (su n) = point.tl α ‼ n
+-- A species of neighborhoods can be viewed as a collection of points,
+-- so we notation for quantifying over points in a species.
+∀∈ : (U : neigh) (P : point → Set) → Set
+∀∈ U P = (α : point) → α ∈ U → P α
+syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
-  _[_] : point → Nat → neigh
-  α [ ze ] = ⟨⟩
-  α [ su n ] = (α [ n ]) ⌢ (α ‼ n)
+-- First, we fix an extensional/semantic explanation of what it means for
+-- a species [𝔅] to bar a node [U], written [̄⊨ U ◃ 𝔅]. When [U] is in [𝔅],
+-- we say that [U] is *secured*; when [𝔅] bars [U], we say that [U] is
+-- *securable*.
+⊨_◃_ : neigh → species → Set
+⊨ U ◃ 𝔅 = ∀[ α ∈ U ] (Σ[ Nat ∋ n ] 𝔅 (α [ n ]))
 
-  data _∈_ : point → neigh → Set where
-    [] : ∀ {α} → α ∈ ⟨⟩
-    step : ∀ {α : point} {U} → point.tl α ∈ U → α ∈ (point.hd α ∶ U)
+-- Next, a syntactic/proof-theoretic characterization of securability inferences is
+-- defined. Proofs are infinitely-broad wellfounded trees.
+data ⊢_◃_ : neigh → species → Set where
+  -- [U] is secured.
+  η : ∀ {U 𝔅} → 𝔅 U → ⊢ U ◃ 𝔅
 
-{-
-  ∈-hereditary : {α : point} {U : neigh} {x : A} → α ∈ (U ⌢ x) → α ∈ U
-  ∈-hereditary {U = []} p = []
-  ∈-hereditary {U = x ∷ U} p = {!!}
-  -}
+  -- [U ⌢ x] is securable, because [U] is securable.
+  ζ[_] : ∀ {U 𝔅} x → ⊢ U ◃ 𝔅 → ⊢ (U ⌢ x) ◃ 𝔅
 
-  species : Set (lsuc lzero)
-  species = neigh → Set
+  -- [U] is securable because all of its immediate children are securable.
+  ϝ : ∀ {U 𝔅} → (∀ x → ⊢ (U ⌢ x) ◃ 𝔅) → ⊢ U ◃ 𝔅
 
-  ∀∈ : (U : neigh) (P : point → Set) → Set
-  ∀∈ U P = (α : point) → α ∈ U → P α
-  syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
+-- Brouwer shows that ζ-inferences can be normalized out of barhood proofs.
+data ⊩_◃_ (U : neigh) (𝔅 : species) : Set where
+  -- [U] is secured.
+  η : 𝔅 U → ⊩ U ◃ 𝔅
 
-  _◃_ : neigh → species → Set
-  U ◃ 𝔅 = ∀[ α ∈ U ] (Σ[ Nat ∋ n ] 𝔅 (α [ n ]))
+  -- [U] is securable because all of its immediate children are securable.
+  ϝ : (∀ x → ⊩ (U ⌢ x) ◃ 𝔅) → ⊩ U ◃ 𝔅
 
-  data ⊢_◃_ : neigh → species → Set where
-    η : ∀ {U 𝔅} → 𝔅 U → ⊢ U ◃ 𝔅
-    ζ[_] : ∀ {U 𝔅} x → ⊢ U ◃ 𝔅 → ⊢ (U ⌢ x) ◃ 𝔅
-    ϝ : ∀ {U 𝔅} → (∀ x → ⊢ (U ⌢ x) ◃ 𝔅) → ⊢ U ◃ 𝔅
+-- A bar is monotonic if every refinement of a secured neighborhood is
+-- also secured.
+mono : species → Set
+mono 𝔅 = ∀ U x → 𝔅 U → 𝔅 (U ⌢ x)
 
-  data ⊩_◃_ : neigh → species → Set where
-    η : ∀ {U 𝔅} → 𝔅 U → ⊩ U ◃ 𝔅
-    ϝ : ∀ {U 𝔅} → (∀ x → ⊩ (U ⌢ x) ◃ 𝔅) → ⊩ U ◃ 𝔅
+mono-++ : species → Set
+mono-++ 𝔅 = ∀ U V → 𝔅 U → 𝔅 (U ++ V)
 
-  monotonic : species → Set
-  monotonic 𝔅 = ∀ U x → 𝔅 U → 𝔅 (U ⌢ x)
+-- Fix a monotonic bar [𝔅].
+module _ (𝔅 : species) (𝔅-mono : mono 𝔅) where
+  -- Then securability is monotonic.
+  ⊩-mono : mono (⊩_◃ 𝔅)
+  ⊩-mono U x (η 𝔅[U]) = η (𝔅-mono U x 𝔅[U])
+  ⊩-mono U x (ϝ 𝒟[_]) = ϝ λ y → ⊩-mono (U ⌢ x) y 𝒟[ x ]
 
-  monotonic-++ : species → Set
-  monotonic-++ 𝔅 = ∀ U V → 𝔅 U → 𝔅 (U ++ V)
+  -- Brouwer's normalization of securability prooofs, following Dummett.
+  normalize : ∀ {U} → ⊢ U ◃ 𝔅 → ⊩ U ◃ 𝔅
+  normalize (η x) = η x
+  normalize (ζ[ x ] 𝒟) = ⊩-mono _ x (normalize 𝒟)
+  normalize (ϝ 𝒟[_]) = ϝ λ y → normalize 𝒟[ y ]
 
-  monotonic-⇒-monotonic-++ : {𝔅 : species} → monotonic 𝔅 → monotonic-++ 𝔅
-  monotonic-⇒-monotonic-++ p U ⟨⟩ x rewrite ++-⟨⟩-id {U} = x
-  monotonic-⇒-monotonic-++ p U (V ⌢ x) x₁ rewrite ++-⌢-id {U} {V} {x} = p (U ++ V) x (monotonic-⇒-monotonic-++ p U V x₁)
-
-  module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) (𝔅-mono : monotonic 𝔅) (𝔅⟨⟩ : 𝔅 ⟨⟩) where
-
-    elim : ∀ {U} → ⊢ U ◃ 𝔅 → ⊩ U ◃ 𝔅
-    elim (η p) = η p
-    elim {U = V ⌢ x} (ζ[ _ ] 𝒟) = ≡.coe* (λ W → ⊩ (W ⌢ x) ◃ 𝔅) (++-⟨⟩-id {V}) (go ⟨⟩ 𝒟)
-      where
-        go : {V : neigh} {x : A} (W : neigh) → ⊢ V ◃ 𝔅 → ⊩ ((V ++ W) ⌢ x) ◃ 𝔅
-        go {V = V} {x = x} W (η p) rewrite ≡.inv (++-⌢-id {V} {W} {x}) = η (monotonic-⇒-monotonic-++ 𝔅-mono _ (W ⌢ _) p)
-        go W (ζ[ x ] 𝒟) = go (x ∶ W) 𝒟
-        go {V = V} ⟨⟩ (ϝ 𝒟) rewrite ++-⟨⟩-id {V} = elim (𝒟 _)
-        go {V = V} (W ⌢ x₂) (ϝ 𝒟₁) rewrite ++-⌢-id {V} {W} {x₂} = ?
-    elim (ϝ 𝒟) = ϝ (λ y → elim (𝒟 y))
-
-{-
-    bar-principle
-      : (U : neigh)
-      → U ◃ 𝔅
-      → ⊢ U [◃] 𝔅
-    bar-principle U p with 𝔅? U
-    bar-principle U p | ⊕.inl q with U
-    bar-principle U p | ⊕.inl q | ⟨⟩ = η 𝔅⟨⟩
-    bar-principle U p | ⊕.inl q | U' ⌢ x =
-      ϝ λ y →
-        {!!}
-    bar-principle U p | ⊕.inr q = η q
-
-
-open space
-
--}
+  -- The crux of the bar principle is essentially a completeness theorem:
+  -- if [𝔅] bars [U], then we have a proof that it does.
+  brouwer's-dogma
+    : {U : neigh}
+    → ⊨ U ◃ 𝔅
+    → ⊢ U ◃ 𝔅
+  brouwer's-dogma p =
+    {!!}
