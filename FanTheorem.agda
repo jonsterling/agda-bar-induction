@@ -6,7 +6,7 @@ open import Prelude.Bool
 open import Prelude.Decidable
 open import Prelude.Families
 open import Prelude.Finite
-open import Prelude.List
+open import Prelude.List.Unsized
 open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Natural
@@ -24,7 +24,7 @@ open Σ using (_,_)
 
 ++-⟨⟩-id : {A : Set} (U : Neigh A) → (U ++ ⟨⟩) ≡ U
 ++-⟨⟩-id ⟨⟩ = refl
-++-⟨⟩-id (x ∷ U) = {!!} -- ≡.ap¹ (λ V → x ∷ V) (++-⟨⟩-id U)
+++-⟨⟩-id (x ∷ U) = ≡.ap¹ (λ V → x ∷ V) (++-⟨⟩-id U)
 
 max : Nat → Nat → Nat
 max m n with m Nat.≤? n
