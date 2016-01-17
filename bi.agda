@@ -9,6 +9,7 @@ open import Prelude.Monoidal.Product
 open import Prelude.Monoidal.Product.Indexed
 open import Prelude.Natural
 open import Prelude.Path
+open import Prelude.Size
 open import Prelude.Stream
 
 open List
@@ -18,13 +19,13 @@ open Stream
   using (take)
 
 -- a choice sequence, or point in the universal spread
-point : Set
-point = Stream A
+point : ..{s : Size} → Set
+point {s} = Stream {s} A
 {-# DISPLAY Stream A = point #-}
 
 -- a finite approximation of a choice sequence (a neighborhood / open set)
-neigh : Set
-neigh = List A
+neigh : ..{s : Size} → Set
+neigh {s} = List {s} A
 {-# DISPLAY List A = neigh #-}
 
 _⌢_ : neigh → A → neigh
@@ -37,13 +38,19 @@ _[_] : point → Nat → neigh
 {-# DISPLAY take n α = α [ n ] #-}
 
 -- A point lies in an open set when the latter is a prefix of the former
-data _∈_ : point → neigh → Set where
-  ⟨⟩ : ∀ {α} → α ∈ ⟨⟩
-  step : ∀ {α : point} {U} → point.tail α ∈ U → α ∈ (point.head α ∷ U)
+data _∈_ ..{sp}..{sn} : point {sp} → neigh {sn} → Set where
+  ⟨⟩
+    : ∀ {α}
+    → _∈_ {sp}{sn} α ⟨⟩
+  step
+    : ∀ ..{sp′ : Size.< sp}..{sn′ : Size.< sn}
+    → ∀ {α : point {sp}} {U : neigh {sn′}}
+    → _∈_ {sp′}{sn′} (point.tail α) U
+    → _∈_ {sp }{sn } α (point.head α ∷ U)
 
-∈-step-back : {α : point} {U : neigh} {m : A} → α ∈ (U ⌢ m) → α ∈ U
+∈-step-back : ∀ ..{sp}..{sn} {α : point {sp}} {U : neigh {sn}} {m : A} → α ∈ (U ⌢ m) → α ∈ U
 ∈-step-back {U = ⟨⟩} p = ⟨⟩
-∈-step-back {U = ._ ∷ U} (step p) = ? -- step (∈-step-back p)
+∈-step-back {U = ._ ∷ U} (step p) = step (∈-step-back p)
 
 species : Set (lsuc lzero)
 species = neigh → Set
