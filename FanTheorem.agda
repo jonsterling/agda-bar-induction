@@ -19,7 +19,7 @@ open import Spread
 open Σ using (_,_)
 open Fin renaming (to-nat to ∣_∣)
 
-module _ (𝔅 : ℘ {ℓ₁ = lzero} (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨⟨⟩◃𝔅 : ⊨ ⟨⟩ ◃ 𝔅) where
+module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨⟨⟩◃𝔅 : ⊨ ⟨⟩ ◃ 𝔅) where
   open BI 𝔅 𝔅?
 
   𝔄 : Neigh 𝟚 → Set

@@ -18,7 +18,7 @@ open Fam public
 -- A neighborhood can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
 infix 0 ∀∈
-∀∈ : (U : Neigh A) (P : Point A → Set) → Set
+∀∈ : (U : Neigh A) (P : ℘ (Point A)) → Set
 ∀∈ U P = (α : Point A) → α ∈ U → P α
 syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
