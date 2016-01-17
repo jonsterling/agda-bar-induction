@@ -13,72 +13,37 @@ open import Prelude.Path
 open import Prelude.Size
 open import Prelude.Stream
 
-open List
-  using (_++_)
-open Stream
-  renaming (module Stream to point)
-  using (take)
+open import Spread
 
--- a choice sequence, or point in the universal spread
-point : ..{s : Size} → Set
-point {s} = Stream {s} A
-{-# DISPLAY Stream A = point #-}
+Species : Set (lsuc lzero)
+Species = Neigh A → Set
 
--- a finite approximation of a choice sequence (a neighborhood / open set)
-neigh : ..{s : Size} → Set
-neigh {s} = List {s} A
-{-# DISPLAY List A = neigh #-}
-
-_⌢_ : neigh → A → neigh
-⟨⟩ ⌢ x = x ∷ ⟨⟩
-(x ∷ U) ⌢ y = x ∷ (U ⌢ y)
-
--- From a point, make an observation of a particular precision
-_[_] : point → Nat → neigh
-α [ n ] = take n α
-{-# DISPLAY take n α = α [ n ] #-}
-
--- A point lies in an open set when the latter is a prefix of the former
-data _∈_ ..{sp}..{sn} : point {sp} → neigh {sn} → Set where
-  ⟨⟩
-    : ∀ {α}
-    → _∈_ {sp}{sn} α ⟨⟩
-  step
-    : ∀ ..{sp′ : Size.< sp}..{sn′ : Size.< sn}
-    → ∀ {α : point {sp}} {U : neigh {sn′}}
-    → _∈_ {sp′}{sn′} (point.tail α) U
-    → _∈_ {sp }{sn } α (point.head α ∷ U)
-
-∈-step-back : ∀ ..{sp}..{sn} {α : point {sp}} {U : neigh {sn}} {m : A} → α ∈ (U ⌢ m) → α ∈ U
-∈-step-back {U = ⟨⟩} p = ⟨⟩
-∈-step-back {U = ._ ∷ U} (step p) = step (∈-step-back p)
-
-species : Set (lsuc lzero)
-species = neigh → Set
-
-_⊑_ : species → species → Set
+_⊑_ : Species → Species → Set
 𝔄 ⊑ 𝔅 =
-  {U : neigh}
+  {U : Neigh A}
     → 𝔄 U
     → 𝔅 U
 
 -- A species of neighborhoods can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
 infix 0 ∀∈
-∀∈ : (U : neigh) (P : point → Set) → Set
-∀∈ U P = (α : point) → α ∈ U → P α
+∀∈ : (U : Neigh A) (P : Point A → Set) → Set
+∀∈ U P = (α : Point A) → α ∈ U → P α
 syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
 -- First, we fix an extensional/semantic explanation of what it means for
 -- a species [𝔅] to bar a node [U], written [̄⊨ U ◃ 𝔅]. When [U] is in [𝔅],
 -- we say that [U] is *secured*; when [𝔅] bars [U], we say that [U] is
 -- *securable*.
-⊨_◃_ : neigh → species → Set
-⊨ U ◃ 𝔅 = ∀[ α ∈ U ] Σ[ Nat ∋ n ] 𝔅 (α [ n ])
+⊨_◃_ : Neigh A → Species → Set
+⊨ U ◃ 𝔅 =
+  ∀[ α ∈ U ]
+  Σ[ Nat ∋ n ]
+    𝔅 (α [ n ])
 
 -- Next, a syntactic/proof-theoretic characterization of securability inferences is
 -- defined. Proofs are infinitely-broad wellfounded trees.
-data ⊢_◃_ (U : neigh) (𝔅 : species) : Set where
+data ⊢_◃_ (U : Neigh A) (𝔅 : Species) : Set where
   -- [U] is secured.
   η : 𝔅 U → ⊢ U ◃ 𝔅
 
@@ -88,7 +53,7 @@ data ⊢_◃_ (U : neigh) (𝔅 : species) : Set where
 syntax ϝ (λ x → 𝒟) = ϝ x ↦ 𝒟
 
 -- Fix a decidable bar [𝔅].
-module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
+module _ (𝔅 : Species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
   -- The crux of the bar principle is essentially a completeness theorem:
   -- if [𝔅] bars [U], then we have a proof that it does. We can implement
   -- the procedure for completeness effectively, but in order to prove that
@@ -96,7 +61,7 @@ module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
   -- in the process of proving).
   {-# TERMINATING #-}
   completeness
-    : (U : neigh)
+    : (U : Neigh A)
     → ⊨ U ◃ 𝔅
     → ⊢ U ◃ 𝔅
   completeness U p with 𝔅? U
@@ -107,9 +72,9 @@ module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
         (λ α → p α Π.⟔ ∈-step-back)
   completeness U p | ⊕.inr q = η q
 
-  module BI (𝔄 : species) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
+  module BI (𝔄 : Species) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
     replace
-      : (U : neigh)
+      : (U : Neigh A)
       → (⊢ U ◃ 𝔅)
       → 𝔄 U
     replace U (η 𝔅[U]) = 𝔅⊑𝔄 𝔅[U]
