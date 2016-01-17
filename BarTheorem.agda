@@ -1,5 +1,6 @@
 module BarTheorem (A : Set) where
 
+open import Agda.Primitive
 open import Prelude.Decidable
 open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
@@ -10,7 +11,7 @@ open import Prelude.Families
 
 open import Spread
 
-open Fam
+open Fam public
   renaming (_⊆_ to _⊑_)
   using ()
 
@@ -62,7 +63,7 @@ module _ (𝔅 : ℘ (Neigh A)) (𝔅? : ∀ U → Decidable (𝔅 U)) where
         (λ α → p α Π.⟔ ∈-step-back)
   completeness U p | ⊕.inr q = η q
 
-  module BI (𝔄 : ℘ (Neigh A)) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
+  module BI (𝔄 : ℘ {ℓ₁ = lzero} (Neigh A)) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
     replace
       : (U : Neigh A)
       → (⊢ U ◃ 𝔅)
