@@ -114,7 +114,7 @@ module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
       → (⊢ U ◃ 𝔅)
       → 𝔄 U
     replace U (η 𝔅[U]) = 𝔅⊑𝔄 𝔅[U]
-    replace U (ϝ 𝒟) = hered U (λ m → replace (U ⌢ m) (𝒟 m))
+    replace U (ϝ 𝒟[_]) = hered U λ m → replace (U ⌢ m) 𝒟[ m ]
 
     bar-induction
       : ⊨ ⟨⟩ ◃ 𝔅
