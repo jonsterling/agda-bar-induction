@@ -44,6 +44,7 @@ species = neigh → Set
 
 -- A species of neighborhoods can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
+infix 0 ∀∈
 ∀∈ : (U : neigh) (P : point → Set) → Set
 ∀∈ U P = (α : point) → α ∈ U → P α
 syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
@@ -53,7 +54,7 @@ syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 -- we say that [U] is *secured*; when [𝔅] bars [U], we say that [U] is
 -- *securable*.
 ⊨_◃_ : neigh → species → Set
-⊨ U ◃ 𝔅 = ∀[ α ∈ U ] (Σ[ Nat ∋ n ] 𝔅 (α [ n ]))
+⊨ U ◃ 𝔅 = ∀[ α ∈ U ] Σ[ Nat ∋ n ] 𝔅 (α [ n ])
 
 -- Next, a syntactic/proof-theoretic characterization of securability inferences is
 -- defined. Proofs are infinitely-broad wellfounded trees.
