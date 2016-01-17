@@ -1,28 +1,15 @@
 module bi (A : Set) where
 
-open import Agda.Primitive
 open import Prelude.Decidable
-open import Prelude.List renaming ([] to ⟨⟩)
 open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Monoidal.Product
 open import Prelude.Monoidal.Product.Indexed
-open import Prelude.Monoidal.Unit
 open import Prelude.Natural
-open import Prelude.Path
 open import Prelude.Size
-open import Prelude.Stream
 
 open import Spread
-
-Species : Set (lsuc lzero)
-Species = Neigh A → Set
-
-_⊑_ : Species → Species → Set
-𝔄 ⊑ 𝔅 =
-  {U : Neigh A}
-    → 𝔄 U
-    → 𝔅 U
+open import Species
 
 -- A species of neighborhoods can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
@@ -35,7 +22,7 @@ syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 -- a species [𝔅] to bar a node [U], written [̄⊨ U ◃ 𝔅]. When [U] is in [𝔅],
 -- we say that [U] is *secured*; when [𝔅] bars [U], we say that [U] is
 -- *securable*.
-⊨_◃_ : Neigh A → Species → Set
+⊨_◃_ : Neigh A → ℘ (Neigh A) → Set
 ⊨ U ◃ 𝔅 =
   ∀[ α ∈ U ]
   Σ[ Nat ∋ n ]
@@ -43,7 +30,7 @@ syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
 -- Next, a syntactic/proof-theoretic characterization of securability inferences is
 -- defined. Proofs are infinitely-broad wellfounded trees.
-data ⊢_◃_ (U : Neigh A) (𝔅 : Species) : Set where
+data ⊢_◃_ (U : Neigh A) (𝔅 : ℘ (Neigh A)) : Set where
   -- [U] is secured.
   η : 𝔅 U → ⊢ U ◃ 𝔅
 
@@ -53,7 +40,7 @@ data ⊢_◃_ (U : Neigh A) (𝔅 : Species) : Set where
 syntax ϝ (λ x → 𝒟) = ϝ x ↦ 𝒟
 
 -- Fix a decidable bar [𝔅].
-module _ (𝔅 : Species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
+module _ (𝔅 : ℘ (Neigh A)) (𝔅? : ∀ U → Decidable (𝔅 U)) where
   -- The crux of the bar principle is essentially a completeness theorem:
   -- if [𝔅] bars [U], then we have a proof that it does. We can implement
   -- the procedure for completeness effectively, but in order to prove that
@@ -72,7 +59,7 @@ module _ (𝔅 : Species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
         (λ α → p α Π.⟔ ∈-step-back)
   completeness U p | ⊕.inr q = η q
 
-  module BI (𝔄 : Species) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
+  module BI (𝔄 : ℘ (Neigh A)) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
     replace
       : (U : Neigh A)
       → (⊢ U ◃ 𝔅)
