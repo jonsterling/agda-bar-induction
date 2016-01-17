@@ -14,7 +14,7 @@ open List
   using (_++_)
 open Stream
   renaming (module Stream to point)
-  using ()
+  using (take)
 
 -- a choice sequence, or point in the universal spread
 point : Set
@@ -32,8 +32,8 @@ _⌢_ : neigh → A → neigh
 
 -- From a point, make an observation of a particular precision
 _[_] : point → Nat → neigh
-α [ ze ] = ⟨⟩
-α [ su n ] = point.head α ∷ point.tail α [ n ]
+α [ n ] = take n α
+{-# DISPLAY take n α = α [ n ] #-}
 
 -- A point lies in an open set when the latter is a prefix of the former
 data _∈_ : point → neigh → Set where
