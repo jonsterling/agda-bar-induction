@@ -27,15 +27,21 @@ open Σ using (_,_)
 ++-⟨⟩-id (x ∷ U) = ≡.ap¹ (λ V → x ∷ V) (++-⟨⟩-id U)
 
 max : Nat → Nat → Nat
-max m n with m Nat.≤? n
-max m n | ⊕.inl _ = n
-max m n | ⊕.inr _ = m
+max ze n = n
+max m ze = m
+max (su m) (su n) = su (max m n)
 
 max-inj₁ : {a b : Nat} → Fin a → Fin (max a b)
-max-inj₁ = {!!}
+max-inj₁ {ze} ()
+max-inj₁ {su a} {ze} i = i
+max-inj₁ {su a} {su b} ze = ze
+max-inj₁ {su a} {su b} (su i) = su (max-inj₁ i)
 
 max-inj₂ : {a b : Nat} → Fin b → Fin (max a b)
-max-inj₂ = {!!}
+max-inj₂ {ze} i = i
+max-inj₂ {su a} {ze} ()
+max-inj₂ {su a} {su b} ze = ze
+max-inj₂ {su a} {su b} (su i) = su (max-inj₂ {a} i)
 
 module _ (𝔅 : ℘ {ℓ₁ = lzero} (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨⟨⟩◃𝔅 : ⊨ ⟨⟩ ◃ 𝔅) where
   open BI 𝔅 𝔅?
