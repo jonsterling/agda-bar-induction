@@ -7,9 +7,13 @@ open import Prelude.Monoidal.Product
 open import Prelude.Monoidal.Product.Indexed
 open import Prelude.Natural
 open import Prelude.Size
+open import Prelude.Families
 
 open import Spread
-open import Species
+
+open Fam
+  renaming (_⊆_ to _⊑_)
+  using ()
 
 -- A species of neighborhoods can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
