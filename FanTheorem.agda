@@ -20,6 +20,29 @@ open import Spread
 open Σ using (_,_)
 open Fin renaming (to-nat to ∣_∣)
 
+to-nat-max-coh₁
+  : (m n : Nat) (i : Fin m)
+  → ∣ i ∣ ≡ ∣ (max-inj₁ {m = m} {n = n} i) ∣
+to-nat-max-coh₁ ze ze ()
+to-nat-max-coh₁ ze (su n) ()
+to-nat-max-coh₁ (su m) ze i = refl
+to-nat-max-coh₁ (su m) (su n) ze = refl
+to-nat-max-coh₁ (su m) (su n) (su i) rewrite to-nat-max-coh₁ m n i = refl
+
+to-nat-max-coh₂
+  : (m n : Nat) (i : Fin n)
+  → ∣ i ∣ ≡ ∣ (max-inj₂ {m = m} {n = n} i) ∣
+to-nat-max-coh₂ m ze ()
+to-nat-max-coh₂ ze (su n) i = refl
+to-nat-max-coh₂ (su m) (su n) ze = refl
+to-nat-max-coh₂ (su m) (su n) (su i) rewrite to-nat-max-coh₂ m n i = refl
+
+++-swap-center
+  : {A : Set} (U : Neigh A) {V : Neigh A} {m : A}
+  → (U ⌢ m ++ V) ≡ (U ++ m ∷ V)
+++-swap-center ⟨⟩ = refl
+++-swap-center (x ∷ U) = ≡.ap¹ (x ∷_) (++-swap-center U)
+
 module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨⟨⟩◃𝔅 : ⊨ ⟨⟩ ◃ 𝔅) where
   open BI 𝔅 𝔅?
 
@@ -46,20 +69,20 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
         su max-inj₂ {m = a} n ,
           ≡.coe*
             𝔅
-            {!!}
+            (≡.ap¹ (λ z → U ++ _ ∷ tail α [ z ]) (to-nat-max-coh₂ a b n)
+              ≡.⟔ ++-swap-center U)
             (≡.coe*
               (λ z → 𝔅 ((U ⌢ z) ++ (tail α [ ∣ n ∣ ])))
               (≡.inv α₀≡ff)
             ψ₁)
       lemma α | m , ψ₀ | n , ψ₁ | tt | Inspect.[ α₀≡tt ] =
-        su max-inj₁ m ,
+        (su max-inj₁ m) ,
           ≡.coe*
             𝔅
-            {!!}
-            (≡.coe*
-              (λ z → 𝔅 ((U ⌢ z) ++ (tail α [ ∣ m ∣ ])))
-              (≡.inv α₀≡tt)
-              ψ₀)
+            (≡.ap¹ (λ z → U ++ _ ∷ tail α [ z ]) (to-nat-max-coh₁ a b m)
+              ≡.⟔ ++-swap-center U
+              ≡.⟔  ≡.ap¹ (λ x → (U ⌢ x) ++ tail α [ ∣ m ∣ ]) (≡.inv α₀≡tt))
+            ψ₀
 
   fan-theorem : Σ[ Nat ∋ k ] ∀ α → Σ[ Fin k ∋ n ] 𝔅 (α [ ∣ n ∣ ])
   fan-theorem =
