@@ -1,11 +1,12 @@
 module bi (A : Set) where
 
 open import Agda.Primitive
-open import Prelude.Natural
+open import Prelude.Decidable
+open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Monoidal.Product
-open import Prelude.Monoidal.Coproduct
-open import Prelude.Decidable
+open import Prelude.Monoidal.Product.Indexed
+open import Prelude.Natural
 open import Prelude.Path
 
 -- a choice sequence, or point in the universal spread
@@ -36,11 +37,21 @@ _[_] : point → Nat → neigh
 
 -- A point lies in an open set when the latter is a prefix of the former
 data _∈_ : point → neigh → Set where
-  [] : ∀ {α} → α ∈ ⟨⟩
+  ⟨⟩ : ∀ {α} → α ∈ ⟨⟩
   step : ∀ {α : point} {U} → point.tl α ∈ U → α ∈ (point.hd α ∷ U)
+
+∈-step-back : {α : point} {U : neigh} {m : A} → α ∈ (U ⌢ m) → α ∈ U
+∈-step-back {U = ⟨⟩} p = ⟨⟩
+∈-step-back {U = ._ ∷ U} (step p) = step (∈-step-back p)
 
 species : Set (lsuc lzero)
 species = neigh → Set
+
+_⊑_ : species → species → Set
+𝔄 ⊑ 𝔅 =
+  {U : neigh}
+    → 𝔄 U
+    → 𝔅 U
 
 -- A species of neighborhoods can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
@@ -57,50 +68,44 @@ syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
 -- Next, a syntactic/proof-theoretic characterization of securability inferences is
 -- defined. Proofs are infinitely-broad wellfounded trees.
-data ⊢_◃_ : neigh → species → Set where
+data ⊢_◃_ (U : neigh) (𝔅 : species) : Set where
   -- [U] is secured.
-  η : ∀ {U 𝔅} → 𝔅 U → ⊢ U ◃ 𝔅
-
-  -- [U ⌢ x] is securable, because [U] is securable.
-  ζ[_] : ∀ {U 𝔅} x → ⊢ U ◃ 𝔅 → ⊢ (U ⌢ x) ◃ 𝔅
+  η : 𝔅 U → ⊢ U ◃ 𝔅
 
   -- [U] is securable because all of its immediate children are securable.
-  ϝ : ∀ {U 𝔅} → (∀ x → ⊢ (U ⌢ x) ◃ 𝔅) → ⊢ U ◃ 𝔅
+  ϝ : (∀ m → ⊢ (U ⌢ m) ◃ 𝔅) → ⊢ U ◃ 𝔅
 
--- Brouwer shows that ζ-inferences can be normalized out of barhood proofs.
-data ⊩_◃_ (U : neigh) (𝔅 : species) : Set where
-  -- [U] is secured.
-  η : 𝔅 U → ⊩ U ◃ 𝔅
-
-  -- [U] is securable because all of its immediate children are securable.
-  ϝ : (∀ x → ⊩ (U ⌢ x) ◃ 𝔅) → ⊩ U ◃ 𝔅
-
--- A bar is monotonic if every refinement of a secured neighborhood is
--- also secured.
-mono : species → Set
-mono 𝔅 = ∀ U x → 𝔅 U → 𝔅 (U ⌢ x)
-
-mono-++ : species → Set
-mono-++ 𝔅 = ∀ U V → 𝔅 U → 𝔅 (U ++ V)
-
--- Fix a monotonic bar [𝔅].
-module _ (𝔅 : species) (𝔅-mono : mono 𝔅) where
-  -- Then securability is monotonic.
-  ⊩-mono : mono (⊩_◃ 𝔅)
-  ⊩-mono U x (η 𝔅[U]) = η (𝔅-mono U x 𝔅[U])
-  ⊩-mono U x (ϝ 𝒟[_]) = ϝ λ y → ⊩-mono (U ⌢ x) y 𝒟[ x ]
-
-  -- Brouwer's normalization of securability prooofs, following Dummett.
-  normalize : ∀ {U} → ⊢ U ◃ 𝔅 → ⊩ U ◃ 𝔅
-  normalize (η x) = η x
-  normalize (ζ[ x ] 𝒟) = ⊩-mono _ x (normalize 𝒟)
-  normalize (ϝ 𝒟[_]) = ϝ λ y → normalize 𝒟[ y ]
-
+-- Fix a decidable bar [𝔅].
+module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
   -- The crux of the bar principle is essentially a completeness theorem:
-  -- if [𝔅] bars [U], then we have a proof that it does.
+  -- if [𝔅] bars [U], then we have a proof that it does. We can implement
+  -- the procedure for completeness effectively, but in order to prove that
+  -- it is a total function, we would need bar induction (which we are
+  -- in the process of proving).
+  {-# TERMINATING #-}
   brouwer's-dogma
-    : {U : neigh}
+    : (U : neigh)
     → ⊨ U ◃ 𝔅
     → ⊢ U ◃ 𝔅
-  brouwer's-dogma p =
-    {!!}
+  brouwer's-dogma U p with 𝔅? U
+  brouwer's-dogma U p | ⊕.inl q =
+    ϝ λ t →
+      brouwer's-dogma
+        (U ⌢ t)
+        (λ α → p α Π.⟔ ∈-step-back)
+  brouwer's-dogma U p | ⊕.inr q = η q
+
+  module BI (𝔄 : species) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
+    replace
+      : (U : neigh)
+      → (⊢ U ◃ 𝔅)
+      → 𝔄 U
+    replace U (η 𝔅[U]) = 𝔅⊑𝔄 𝔅[U]
+    replace U (ϝ 𝒟) = hered U (λ m → replace (U ⌢ m) (𝒟 m))
+
+    bar-induction
+      : ⊨ ⟨⟩ ◃ 𝔅
+      → 𝔄 ⟨⟩
+    bar-induction p =
+      replace ⟨⟩
+        (brouwer's-dogma ⟨⟩ p)
