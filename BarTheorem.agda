@@ -6,7 +6,6 @@ open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Monoidal.Product
 open import Prelude.Monoidal.Product.Indexed
 open import Prelude.Natural
-open import Prelude.Size
 open import Prelude.Families
 
 open import Spread
