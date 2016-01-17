@@ -96,17 +96,17 @@ module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
   -- it is a total function, we would need bar induction (which we are
   -- in the process of proving).
   {-# TERMINATING #-}
-  brouwer's-dogma
+  completeness
     : (U : neigh)
     → ⊨ U ◃ 𝔅
     → ⊢ U ◃ 𝔅
-  brouwer's-dogma U p with 𝔅? U
-  brouwer's-dogma U p | ⊕.inl q =
+  completeness U p with 𝔅? U
+  completeness U p | ⊕.inl q =
     ϝ λ t →
-      brouwer's-dogma
+      completeness
         (U ⌢ t)
         (λ α → p α Π.⟔ ∈-step-back)
-  brouwer's-dogma U p | ⊕.inr q = η q
+  completeness U p | ⊕.inr q = η q
 
   module BI (𝔄 : species) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
     replace
@@ -121,4 +121,4 @@ module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
       → 𝔄 ⟨⟩
     bar-induction p =
       replace ⟨⟩
-        (brouwer's-dogma ⟨⟩ p)
+        (completeness ⟨⟩ p)
