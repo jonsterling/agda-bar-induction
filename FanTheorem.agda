@@ -54,7 +54,7 @@ module _ (𝔅 : ℘ {ℓ₁ = lzero} (Neigh 𝟚)) (𝔅? : ∀ U → Decidable
     where
       lemma : (α : Point 𝟚) → Σ[ Fin (su (max a b)) ∋ n ] 𝔅 (U ++ α [ ∣ n ∣ ])
       lemma α with φ[a] (Point.tail α) | φ[b] (Point.tail α)
-      ... | m , ψ₀ | n , ψ₁ with Stream.idx α 0
+      lemma α | m , ψ₀ | n , ψ₁ with Stream.idx α 0
       lemma α | m , ψ₀ | n , ψ₁ | ff = (su max-inj₂ {a = a} n) , {!!}
       lemma α | m , ψ₀ | n , ψ₁ | tt = (su max-inj₁ m) , {!!}
 
