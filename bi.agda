@@ -1,43 +1,44 @@
 module bi (A : Set) where
 
 open import Agda.Primitive
-open import Prelude.Natural
+open import Prelude.Decidable
+open import Prelude.List renaming ([] to ⟨⟩)
+open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Monoidal.Product
-open import Prelude.Monoidal.Coproduct
-open import Prelude.Decidable
+open import Prelude.Natural
 open import Prelude.Path
+open import Prelude.Stream
+
+open List
+  using (_++_)
+open Stream
+  renaming (module Stream to point)
+  using ()
 
 -- a choice sequence, or point in the universal spread
-record point : Set where
-  coinductive
-  constructor _∷_
-  field
-    hd : A
-    tl : point
+point : Set
+point = Stream A
+{-# DISPLAY Stream A = point #-}
 
 -- a finite approximation of a choice sequence (a neighborhood / open set)
-data neigh : Set where
-  ⟨⟩ : neigh
-  _∷_ : A → neigh → neigh
+neigh : Set
+neigh = List A
+{-# DISPLAY List A = neigh #-}
 
 _⌢_ : neigh → A → neigh
 ⟨⟩ ⌢ x = x ∷ ⟨⟩
 (x ∷ U) ⌢ y = x ∷ (U ⌢ y)
 
-_++_ : neigh → neigh → neigh
-⟨⟩ ++ V = V
-(x ∷ U) ++ V = x ∷ (U ++ V)
-
 -- From a point, make an observation of a particular precision
 _[_] : point → Nat → neigh
 α [ ze ] = ⟨⟩
-α [ su n ] = point.hd α ∷ ((point.tl α) [ n ])
+α [ su n ] = point.head α ∷ point.tail α [ n ]
 
 -- A point lies in an open set when the latter is a prefix of the former
 data _∈_ : point → neigh → Set where
   [] : ∀ {α} → α ∈ ⟨⟩
-  step : ∀ {α : point} {U} → point.tl α ∈ U → α ∈ (point.hd α ∷ U)
+  step : ∀ {α : point} {U} → point.tail α ∈ U → α ∈ (point.head α ∷ U)
 
 species : Set (lsuc lzero)
 species = neigh → Set
