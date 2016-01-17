@@ -1,4 +1,4 @@
-module bi (A : Set) where
+module BarTheorem (A : Set) where
 
 open import Prelude.Decidable
 open import Prelude.Monoidal.Coproduct
