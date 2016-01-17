@@ -15,7 +15,7 @@ open Fam public
   renaming (_⊆_ to _⊑_)
   using ()
 
--- A species of neighborhoods can be viewed as a collection of points,
+-- A neighborhood can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
 infix 0 ∀∈
 ∀∈ : (U : Neigh A) (P : Point A → Set) → Set
