@@ -59,15 +59,19 @@ syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
 -- Next, a syntactic/proof-theoretic characterization of securability inferences is
 -- defined. Proofs are infinitely-broad wellfounded trees.
-data ⊢_◃_ : neigh → species → Set where
+data ⊢_▹_ (𝔅 : species) : neigh → Set where
   -- [U] is secured.
-  η : ∀ {U 𝔅} → 𝔅 U → ⊢ U ◃ 𝔅
+  η : ∀ {U} → 𝔅 U → ⊢ 𝔅 ▹ U
 
   -- [U ⌢ x] is securable, because [U] is securable.
-  ζ[_] : ∀ {U 𝔅} x → ⊢ U ◃ 𝔅 → ⊢ (U ⌢ x) ◃ 𝔅
+  ζ[_] : ∀ {U} x → ⊢ 𝔅 ▹ U → ⊢ 𝔅 ▹ (U ⌢ x)
 
   -- [U] is securable because all of its immediate children are securable.
-  ϝ : ∀ {U 𝔅} → (∀ x → ⊢ (U ⌢ x) ◃ 𝔅) → ⊢ U ◃ 𝔅
+  ϝ : ∀ {U} → (∀ x → ⊢ 𝔅 ▹ (U ⌢ x)) → ⊢ 𝔅 ▹ U
+
+⊢_◃_ : (U : neigh) (𝔅 : species) → Set
+⊢ U ◃ 𝔅 = ⊢ 𝔅 ▹ U
+{-# DISPLAY ⊢_▹_ 𝔅 U = ⊢ U ◃ 𝔅 #-}
 
 -- Brouwer shows that ζ-inferences can be normalized out of barhood proofs.
 data ⊩_◃_ (U : neigh) (𝔅 : species) : Set where
