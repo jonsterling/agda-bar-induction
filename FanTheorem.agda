@@ -6,6 +6,7 @@ open import Prelude.Bool
 open import Prelude.Decidable
 open import Prelude.Families
 open import Prelude.Finite
+import Prelude.Inspect as Inspect
 open import Prelude.List.Unsized
 open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
@@ -39,10 +40,26 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
   𝔄-hered U φ | a , φ[a] | b , φ[b] = su (Nat.max a b) , lemma
     where
       lemma : (α : Point 𝟚) → Σ[ Fin (su (Nat.max a b)) ∋ n ] 𝔅 (U ++ α [ ∣ n ∣ ])
-      lemma α with φ[a] (Point.tail α) | φ[b] (Point.tail α)
-      lemma α | m , ψ₀ | n , ψ₁ with Stream.idx α 0
-      lemma α | m , ψ₀ | n , ψ₁ | ff = (su Fin.max-inj₂ {m = a} n) , {!!}
-      lemma α | m , ψ₀ | n , ψ₁ | tt = (su Fin.max-inj₁ m) , {!!}
+      lemma α with φ[a] (tail α) | φ[b] (tail α)
+      lemma α | m , ψ₀ | n , ψ₁ with head α | Inspect.inspect head α
+      lemma α | m , ψ₀ | n , ψ₁ | ff | Inspect.[ α₀≡ff ] =
+        su max-inj₂ {m = a} n ,
+          ≡.coe*
+            𝔅
+            {!!}
+            (≡.coe*
+              (λ z → 𝔅 ((U ⌢ z) ++ (tail α [ ∣ n ∣ ])))
+              (≡.inv α₀≡ff)
+            ψ₁)
+      lemma α | m , ψ₀ | n , ψ₁ | tt | Inspect.[ α₀≡tt ] =
+        su max-inj₁ m ,
+          ≡.coe*
+            𝔅
+            {!!}
+            (≡.coe*
+              (λ z → 𝔅 ((U ⌢ z) ++ (tail α [ ∣ m ∣ ])))
+              (≡.inv α₀≡tt)
+              ψ₀)
 
   fan-theorem : Σ[ Nat ∋ k ] ∀ α → Σ[ Fin k ∋ n ] 𝔅 (α [ ∣ n ∣ ])
   fan-theorem =
