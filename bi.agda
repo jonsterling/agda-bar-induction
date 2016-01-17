@@ -7,6 +7,7 @@ open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Monoidal.Product
 open import Prelude.Monoidal.Product.Indexed
+open import Prelude.Monoidal.Unit
 open import Prelude.Natural
 open import Prelude.Path
 open import Prelude.Size
@@ -84,6 +85,8 @@ data ⊢_◃_ (U : neigh) (𝔅 : species) : Set where
   -- [U] is securable because all of its immediate children are securable.
   ϝ : (∀ x → ⊢ (U ⌢ x) ◃ 𝔅) → ⊢ U ◃ 𝔅
 
+syntax ϝ (λ x → 𝒟) = ϝ x ↦ 𝒟
+
 -- Fix a decidable bar [𝔅].
 module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
   -- The crux of the bar principle is essentially a completeness theorem:
@@ -98,7 +101,7 @@ module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
     → ⊢ U ◃ 𝔅
   completeness U p with 𝔅? U
   completeness U p | ⊕.inl q =
-    ϝ λ t →
+    ϝ t ↦
       completeness
         (U ⌢ t)
         (λ α → p α Π.⟔ ∈-step-back)
