@@ -77,16 +77,12 @@ syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
 -- Next, a syntactic/proof-theoretic characterization of securability inferences is
 -- defined. Proofs are infinitely-broad wellfounded trees.
-data ⊢_▹_ (𝔅 : species) : neigh → Set where
+data ⊢_◃_ (U : neigh) (𝔅 : species) : Set where
   -- [U] is secured.
-  η : ∀ {U} → 𝔅 U → ⊢ 𝔅 ▹ U
+  η : 𝔅 U → ⊢ U ◃ 𝔅
 
   -- [U] is securable because all of its immediate children are securable.
-  ϝ : ∀ {U} → (∀ x → ⊢ 𝔅 ▹ (U ⌢ x)) → ⊢ 𝔅 ▹ U
-
-⊢_◃_ : (U : neigh) (𝔅 : species) → Set
-⊢ U ◃ 𝔅 = ⊢ 𝔅 ▹ U
-{-# DISPLAY ⊢_▹_ 𝔅 U = ⊢ U ◃ 𝔅 #-}
+  ϝ : (∀ x → ⊢ (U ⌢ x) ◃ 𝔅) → ⊢ U ◃ 𝔅
 
 -- Fix a decidable bar [𝔅].
 module _ (𝔅 : species) (𝔅? : ∀ U → Decidable (𝔅 U)) where
