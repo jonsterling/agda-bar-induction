@@ -2,6 +2,7 @@ module bi (A : Set) where
 
 open import Agda.Primitive
 open import Prelude.Decidable
+open import Prelude.Families
 open import Prelude.List renaming ([] to ⟨⟩)
 open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
@@ -13,6 +14,9 @@ open import Prelude.Path
 open import Prelude.Size
 open import Prelude.Stream
 
+open Fam
+  renaming (_⊆_ to _⊑_)
+  using ()
 open List
   using (_++_)
 open Stream
@@ -54,18 +58,12 @@ data _∈_ ..{sp}..{sn} : point {sp} → neigh {sn} → Set where
 ∈-step-back {U = ._ ∷ U} (step p) = step (∈-step-back p)
 
 species : Set (lsuc lzero)
-species = neigh → Set
-
-_⊑_ : species → species → Set
-𝔄 ⊑ 𝔅 =
-  {U : neigh}
-    → 𝔄 U
-    → 𝔅 U
+species = ℘ neigh
 
 -- A species of neighborhoods can be viewed as a collection of points,
 -- so we notation for quantifying over points in a species.
 infix 0 ∀∈
-∀∈ : (U : neigh) (P : point → Set) → Set
+∀∈ : (U : neigh) (P : ℘ point) → Set
 ∀∈ U P = (α : point) → α ∈ U → P α
 syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
 
