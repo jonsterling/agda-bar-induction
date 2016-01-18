@@ -81,8 +81,8 @@ module _ (𝔅 : ℘ (Neigh A)) where
     --
     -- The induction principle is demonstrated by first analyzing the evidence for the
     -- securability of the initial node into a proof (i.e. an ordinal), and then walking
-    -- this proof and replacing every secured node with the corresponding element of [𝔄],
-    -- and every (proper) securable node with an appeal to [𝔄]'s heredity.
+    -- this proof and replacing every [η] inference with the corresponding membership proof
+    -- in [𝔄],and every [ϝ] inference with an appeal to [𝔄]'s heredity
     --
     -- In this way, the proof of securability serves as the *matrix* for the proof of the
     -- conclusion, [𝔄 ⟨⟩].
