@@ -82,6 +82,18 @@ module _ (𝔅 : ℘ (Neigh A)) where
           (λ α → p α Π.⟔ ∈-step-back)
     completeness U p | ⊕.inr q = η q
 
+    -- Now, fix a species [𝔄] of nodes that contains every secured node, such that
+    -- [𝔄] is hereditary. Then, we may can demonstrate an induction principle for [𝔄]:
+    --
+    --     if [𝔅] is a bar (i.e. [⟨⟩] is securable), then [⟨⟩] is in [𝔄]
+    --
+    -- The induction principle is demonstrated by first analyzing the evidence for the
+    -- securability of the initial node into a proof (i.e. an ordinal), and then walking
+    -- this proof and replacing every secured node with the corresponding element of [𝔄],
+    -- and every (proper) securable node with an appeal to [𝔄]'s heredity.
+    --
+    -- In this way, the proof of securability serves as the *matrix* for the proof of the
+    -- conclusion, [𝔄 ⟨⟩].
     module BI (𝔄 : ℘⁰ (Neigh A)) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
       replace
         : (U : Neigh A)
