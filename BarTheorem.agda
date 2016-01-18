@@ -82,8 +82,8 @@ module _ (𝔅 : ℘ (Neigh A)) where
           (λ α → p α Π.⟔ ∈-step-back)
     completeness U p | ⊕.inr q = η q
 
-    -- Now, fix a species [𝔄] of nodes that contains every secured node, such that
-    -- [𝔄] is hereditary. Then, we may can demonstrate an induction principle for [𝔄]:
+    -- Now, fix a species [𝔄] of nodes that contains every secured node such that
+    -- [𝔄] is hereditary. Then, we can demonstrate an induction principle for [𝔄]:
     --
     --     if [𝔅] is a bar (i.e. [⟨⟩] is securable), then [⟨⟩] is in [𝔄]
     --
