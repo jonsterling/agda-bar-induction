@@ -63,7 +63,7 @@ module _ (𝔅 : ℘ (Neigh A)) (𝔅? : ∀ U → Decidable (𝔅 U)) where
         (λ α → p α Π.⟔ ∈-step-back)
   completeness U p | ⊕.inr q = η q
 
-  module BI (𝔄 : ℘ {ℓ₁ = lzero} (Neigh A)) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
+  module BI (𝔄 : ℘⁰ (Neigh A)) (𝔅⊑𝔄 : 𝔅 ⊑ 𝔄) (hered : ∀ U → (∀ m → 𝔄 (U ⌢ m)) → 𝔄 U) where
     replace
       : (U : Neigh A)
       → (⊢ U ◃ 𝔅)
