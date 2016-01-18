@@ -3,7 +3,7 @@ module Spread where
 open import Prelude.List.Unsized
 open import Prelude.Stream
 open import Prelude.Natural
-open import Prelude.Size
+open import Prelude.Path
 
 open Stream public
   renaming (module Stream to Point)
@@ -34,6 +34,14 @@ module _ {A : Set} where
     stop : ∀ {α} → α ∈ ⟨⟩
     step : ∀ {α U} → tail α ∈ U → α ∈ (head α ∷ U)
 
+  take-prefix-id : ∀ {α U} → α ∈ U → α [ List.len U ] ≡ U
+  take-prefix-id {U = ⟨⟩} p = refl
+  take-prefix-id {U = ._ ∷ U} (step p) rewrite take-prefix-id p = refl
+
   ∈-step-back : ∀ {α U m} → α ∈ (U ⌢ m) → α ∈ U
   ∈-step-back {U = ⟨⟩} p = stop
   ∈-step-back {U = ._ ∷ U} (step p) = step (∈-step-back p)
+
+  ∈-step-forward : ∀ {α U} → α ∈ U → α ∈ (U ⌢ Stream.idx α (List.len U))
+  ∈-step-forward stop = step stop
+  ∈-step-forward (step p) = step (∈-step-forward p)
