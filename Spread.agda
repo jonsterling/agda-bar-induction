@@ -4,6 +4,7 @@ open import Prelude.List.Unsized
 open import Prelude.Stream
 open import Prelude.Natural
 open import Prelude.Path
+open import Prelude.Families
 
 open Stream public
   renaming (module Stream to Point)
@@ -45,3 +46,10 @@ module _ {A : Set} where
   ∈-step-forward : ∀ {α U} → α ∈ U → α ∈ (U ⌢ Stream.idx α (List.len U))
   ∈-step-forward stop = step stop
   ∈-step-forward (step p) = step (∈-step-forward p)
+
+  -- A neighborhood can be viewed as a collection of points,
+  -- so we notation for quantifying over points in a species.
+  infix 0 ∀∈
+  ∀∈ : (U : Neigh A) (P : ℘ (Point A)) → Set
+  ∀∈ U P = (α : Point A) → α ∈ U → P α
+  syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P

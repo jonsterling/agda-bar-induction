@@ -18,13 +18,6 @@ open Fam public
   renaming (_⊆_ to _⊑_)
   using ()
 
--- A neighborhood can be viewed as a collection of points,
--- so we notation for quantifying over points in a species.
-infix 0 ∀∈
-∀∈ : (U : Neigh A) (P : ℘ (Point A)) → Set
-∀∈ U P = (α : Point A) → α ∈ U → P α
-syntax ∀∈ U (λ α → P) = ∀[ α ∈ U ] P
-
 -- First, we fix an extensional/semantic explanation of what it means for
 -- a species [𝔅] to bar a node [U], written [̄⊨ U ◃ 𝔅]. When [U] is in [𝔅],
 -- we say that [U] is *secured*; when [𝔅] bars [U], we say that [U] is
