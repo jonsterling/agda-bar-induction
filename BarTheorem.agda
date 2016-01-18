@@ -1,4 +1,3 @@
--- module BarTheorem (A : Set) where
 module BarTheorem (A : Set) where
 
 open import Agda.Primitive
