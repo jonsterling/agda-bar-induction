@@ -1,6 +1,6 @@
 module Spread where
 
-open import Prelude.List.Unsized
+open import Prelude.List
 open import Prelude.Stream
 open import Prelude.Natural
 open import Prelude.Path

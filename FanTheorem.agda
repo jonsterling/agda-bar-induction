@@ -7,7 +7,7 @@ open import Prelude.Decidable
 open import Prelude.Families
 open import Prelude.Finite
 import Prelude.Inspect as Inspect
-open import Prelude.List.Unsized
+open import Prelude.List
 open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Natural
@@ -59,7 +59,7 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
       ze ,
         ≡.coe*
           𝔅
-          (List.++-idn-r _ ≡.⁻¹)
+          (List.⊢.ρ⇒ _ ≡.⁻¹)
           𝔅[U]
 
   𝔄-hered : (U : Neigh 𝟚) → ((b : 𝟚) → 𝔄 (U ⌢ b)) → 𝔄 U
