@@ -3,7 +3,7 @@ module BarTheorem (A : Set) where
 open import Agda.Primitive
 open import Prelude.Decidable
 open import Prelude.Families
-open import Prelude.List.Unsized
+open import Prelude.List
 open import Prelude.Monoidal.Coproduct
 open import Prelude.Monoidal.Coproduct.Indexed
 open import Prelude.Monoidal.Product
