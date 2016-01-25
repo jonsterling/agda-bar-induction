@@ -4,10 +4,7 @@ open import Agda.Primitive
 open import Prelude.Decidable
 open import Prelude.Families
 open import Prelude.List
-open import Prelude.Monoidal.Coproduct
-open import Prelude.Monoidal.Coproduct.Indexed
-open import Prelude.Monoidal.Product
-open import Prelude.Monoidal.Product.Indexed
+open import Prelude.Monoidal
 open import Prelude.Natural
 open import Prelude.Path
 open import Prelude.Stream
@@ -47,7 +44,7 @@ module _ (𝔅 : ℘ (Neigh A)) where
     → ⊢ U ◃ 𝔅
     → ⊨ U ◃ 𝔅
   soundness U (η 𝔅[U]) α a∈U =
-    List.len U Σ., ≡.coe* 𝔅 (take-prefix-id a∈U ≡.⁻¹) 𝔅[U]
+    List.len U ▸ ≡.coe* 𝔅 (take-prefix-id a∈U ≡.⁻¹) 𝔅[U]
   soundness U (ϝ 𝒟[_]) α a∈U =
     soundness (U ⌢ _) 𝒟[ _ ] α (∈-step-forward a∈U)
 
