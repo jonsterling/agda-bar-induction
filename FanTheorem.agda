@@ -8,8 +8,7 @@ open import Prelude.Families
 open import Prelude.Finite
 import Prelude.Inspect as Inspect
 open import Prelude.List
-open import Prelude.Monoidal.Coproduct
-open import Prelude.Monoidal.Coproduct.Indexed
+open import Prelude.Monoidal
 open import Prelude.Natural
 open import Prelude.Stream
 open import Prelude.Path
@@ -17,7 +16,6 @@ open import Prelude.Path
 open import BarTheorem 𝟚
 open import Spread
 
-open Σ using (_,_)
 open Fin renaming (to-nat to ∣_∣)
 
 to-nat-max-id₁
@@ -55,8 +53,8 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
 
   𝔅⊑𝔄 : 𝔅 ⊑ 𝔄
   𝔅⊑𝔄 𝔅[U] =
-    1 , λ α →
-      ze ,
+    1 ▸ λ α →
+      ze ▸
         ≡.coe*
           𝔅
           (List.⊢.ρ⇒ _ ≡.⁻¹)
@@ -64,7 +62,7 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
 
   𝔄-hered : (U : Neigh 𝟚) → ((b : 𝟚) → 𝔄 (U ⌢ b)) → 𝔄 U
   𝔄-hered U φ with φ tt | φ ff
-  𝔄-hered U φ | kᵗ , φᵗ | kᶠ , φᶠ = su ⨆k , modulus
+  𝔄-hered U φ | kᵗ ▸ φᵗ | kᶠ ▸ φᶠ = su ⨆k ▸ modulus
     where
       ⨆k : Nat
       ⨆k = Nat.max kᵗ kᶠ
@@ -72,16 +70,16 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
       modulus : (α : Point 𝟚) → Σ[ Fin (su ⨆k) ∋ n ] 𝔅 (U ++ α [ ∣ n ∣ ])
       modulus α with φᵗ (tail α) | φᶠ (tail α)
       modulus α | _ | _ with head α | Inspect.inspect head α
-      modulus α | m , ψᵗ | _ | tt | Inspect.[ α₀≡tt ] =
-        su max-inj₁ m ,
+      modulus α | m ▸ ψᵗ | _ | tt | Inspect.[ α₀≡tt ] =
+        su max-inj₁ m ▸
           ≡.coe*
             𝔅
             (≡.ap¹ (λ z → U ++ α [ su z ]) (to-nat-max-id₁ kᵗ _ m)
                ≡.⟔ ++-pivot-id U
                ≡.⟔ ≡.ap¹ (λ z → U ⌢ z ++ tail α [ ∣ m ∣ ]) α₀≡tt ≡.⁻¹)
             ψᵗ
-      modulus α | _ | n , ψᶠ | ff | Inspect.[ α₀≡ff ] =
-        su max-inj₂ {m = kᵗ} n ,
+      modulus α | _ | n ▸ ψᶠ | ff | Inspect.[ α₀≡ff ] =
+        su max-inj₂ {m = kᵗ} n ▸
           ≡.coe*
             𝔅
             (≡.ap¹ (λ z → U ++ α [ su z ]) (to-nat-max-id₂ kᵗ _ n)
