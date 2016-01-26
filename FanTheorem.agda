@@ -16,11 +16,11 @@ open import Prelude.Path
 open import BarTheorem 𝟚
 open import Spread
 
-open Fin renaming (to-nat to ∣_∣)
+open Fin renaming (⊆nat to ∣_∣)
 
 to-nat-max-id₁
   : (m n : Nat) (i : Fin m)
-  → ∣ i ∣ ≡ ∣ (max-inj₁ {m = m} {n = n} i) ∣
+  → ∣ i ∣ ≡ ∣ (max-inl {m = m} {n = n} i) ∣
 to-nat-max-id₁ ze ze ()
 to-nat-max-id₁ ze (su n) ()
 to-nat-max-id₁ (su m) ze i = refl
@@ -29,7 +29,7 @@ to-nat-max-id₁ (su m) (su n) (su i) rewrite to-nat-max-id₁ m n i = refl
 
 to-nat-max-id₂
   : (m n : Nat) (i : Fin n)
-  → ∣ i ∣ ≡ ∣ (max-inj₂ {m = m} {n = n} i) ∣
+  → ∣ i ∣ ≡ ∣ (max-inr {m = m} {n = n} i) ∣
 to-nat-max-id₂ m ze ()
 to-nat-max-id₂ ze (su n) i = refl
 to-nat-max-id₂ (su m) (su n) ze = refl
@@ -71,7 +71,7 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
       modulus α with φᵗ (tail α) | φᶠ (tail α)
       modulus α | _ | _ with head α | Inspect.inspect head α
       modulus α | m ▸ ψᵗ | _ | tt | Inspect.[ α₀≡tt ] =
-        su max-inj₁ m ▸
+        su max-inl m ▸
           ≡.coe*
             𝔅
             (≡.ap¹ (λ z → U ++ α [ su z ]) (to-nat-max-id₁ kᵗ _ m)
@@ -79,7 +79,7 @@ module _ (𝔅 : ℘ (Neigh 𝟚)) (𝔅? : ∀ U → Decidable (𝔅 U)) (⊨�
                ≡.⟔ ≡.ap¹ (λ z → U ⌢ z ++ tail α [ ∣ m ∣ ]) α₀≡tt ≡.⁻¹)
             ψᵗ
       modulus α | _ | n ▸ ψᶠ | ff | Inspect.[ α₀≡ff ] =
-        su max-inj₂ {m = kᵗ} n ▸
+        su max-inr {m = kᵗ} n ▸
           ≡.coe*
             𝔅
             (≡.ap¹ (λ z → U ++ α [ su z ]) (to-nat-max-id₂ kᵗ _ n)
